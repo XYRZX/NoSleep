@@ -66,7 +66,7 @@ The app lives in the menu bar. Click the moon icon to open the popover panel whe
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/NoSleep.git
+git clone https://github.com/XYRZX/NoSleep.git
 cd NoSleep
 
 # One-click build (compile, sign, package DMG)
@@ -93,7 +93,7 @@ swiftc -o NoSleep \
 
 ### Option 3: Download DMG
 
-Download the latest release from the [Releases](https://github.com/your-username/NoSleep/releases) page.
+Download the latest release from the [Releases](https://github.com/XYRZX/NoSleep/releases) page.
 
 ## Project Structure
 
@@ -158,7 +158,7 @@ Contributions are welcome! Here's how you can help:
 
 ### Reporting Issues
 
-If you find a bug or have a feature request, please [open an issue](https://github.com/your-username/NoSleep/issues).
+If you find a bug or have a feature request, please [open an issue](https://github.com/XYRZX/NoSleep/issues).
 
 ### Pull Requests
 
