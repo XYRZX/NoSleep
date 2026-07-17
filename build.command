@@ -117,30 +117,53 @@ echo "[4/5] 正在签名..."
 
 SIGN_METHOD=""
 
+# 1) 优先查找 Developer ID Application（适合分发给他人）
 DEV_ID=$(security find-identity -v -p codesigning 2>/dev/null \
     | grep -m1 "Developer ID Application" \
     | awk -F'"' '{print $2}' || true)
 
-if [ -z "$DEV_ID" ]; then
-    DEV_ID=$(security find-identity -v -p codesigning 2>/dev/null \
-        | grep -m1 "Apple Development" \
-        | awk -F'"' '{print $2}' || true)
-fi
-
-if [ -z "$DEV_ID" ]; then
-    DEV_ID=$(security find-identity -v -p codesigning 2>/dev/null \
-        | grep -m1 "Apple Distribution" \
-        | awk -F'"' '{print $2}' || true)
-fi
-
 if [ -n "$DEV_ID" ]; then
-    echo "      ✓ 找到签名证书: $DEV_ID"
+    echo "      ✓ 找到 Developer ID 证书: $DEV_ID"
     codesign --force --deep --sign "$DEV_ID" "$BUILD_DIR/$APP_NAME.app"
-    SIGN_METHOD="正式签名 ($DEV_ID)"
+    SIGN_METHOD="Developer ID 正式签名 ($DEV_ID)"
 else
-    echo "      ⚠ 使用 ad-hoc 签名"
-    codesign --force --deep --sign - "$BUILD_DIR/$APP_NAME.app"
-    SIGN_METHOD="ad-hoc 签名"
+    # 没有 Developer ID，列出其他可用证书供参考
+    OTHER_CERT=$(security find-identity -v -p codesigning 2>/dev/null \
+        | grep -E "Apple Development|Apple Distribution" \
+        | head -1 \
+        | awk -F'"' '{print $2}' || true)
+
+    echo ""
+    echo "      ⚠ 未找到 Developer ID Application 证书"
+    echo ""
+    echo "         Developer ID 证书签名的安装包可以分发给任何人"
+    echo "         直接双击运行，无需额外操作。"
+    echo ""
+    if [ -n "$OTHER_CERT" ]; then
+        echo "         检测到其他证书: $OTHER_CERT"
+        echo "         注意：此证书签名的安装包只能在你自己的设备上运行，"
+        echo "         其他人安装时会被系统拦截。"
+        echo ""
+    fi
+    echo "         选项："
+    echo "           [1] 使用 ad-hoc 签名（免费，但他人首次安装需在"
+    echo "               系统设置 > 隐私与安全性 中点击'仍要打开'）"
+    echo "           [2] 终止构建，前往 Apple Developer 申请 Developer ID"
+    echo "               https://developer.apple.com/programs/"
+    echo ""
+    read -p "      请选择 (1/2): " CHOICE
+
+    if [ "$CHOICE" = "2" ]; then
+        echo ""
+        echo "      已终止构建。申请 Developer ID 后重新运行本脚本即可。"
+        echo ""
+        read -p "按回车键退出..."
+        exit 0
+    else
+        echo "      ⚠ 使用 ad-hoc 签名"
+        codesign --force --deep --sign - "$BUILD_DIR/$APP_NAME.app"
+        SIGN_METHOD="ad-hoc 签名（他人安装需手动允许）"
+    fi
 fi
 
 echo "      签名验证: $(codesign --verify --verbose=0 "$BUILD_DIR/$APP_NAME.app" 2>&1 || true)"
