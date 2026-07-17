@@ -10,7 +10,7 @@ set -e
 cd "$(dirname "$0")"
 
 APP_NAME="NoSleep"
-VERSION="1.1"
+VERSION="1.0.0"
 BUILD_DIR=".build"
 DMG_NAME="${APP_NAME}-${VERSION}"
 CONTENTS="$BUILD_DIR/$APP_NAME.app/Contents"
@@ -99,7 +99,7 @@ cat > "$CONTENTS/Info.plist" << 'EOF'
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.1</string>
+    <string>1.0.0</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>LSUIElement</key>
